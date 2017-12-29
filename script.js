@@ -44,6 +44,13 @@ const ElementTree = (function (window) {
     return element;
   };
 
+  const Button = function (data) {
+    const element = doc.createElement('button');
+    if (data.child) element.appendChild(data.child);
+    if (data.onPressed) element.onclick = data.onPressed;
+    return element;
+  };
+
   return {
     runApp,
     Text,
@@ -51,11 +58,41 @@ const ElementTree = (function (window) {
     Column,
     Row,
     Expanded,
+    Button,
   };
 })(window);
 
 Object.assign(window, ElementTree);
 
+let state = {
+  _counter: 1,
+};
+const CustomText = function () {
+
+  const _increment = (element) => {
+    const parent = element.parentNode;
+    let elementIndex = null;
+    parent.childNodes.forEach((item, index) => {
+      if (item === element) {
+        elementIndex = index;
+        return;
+      }
+    });
+    state._counter++;
+    parent.insertBefore(new CustomText(), element);
+    element.remove();
+  };
+
+  const ElementBuilder = () => new Container({ children: [
+    new Text(`Contador: ${state._counter}`),
+    new Button({ 
+      onPressed () { _increment(build) },
+      child: new Text('Increment'), }),
+  ] });
+  const build = ElementBuilder();
+
+  return build;
+};
 
 runApp({
   body: new Row({
@@ -63,7 +100,7 @@ runApp({
       new Text("Olá"),
       new Expanded({ children: [
         new Text('hey there!'),
-        new Text('we are awesome!'),
+        new CustomText(),
       ] }),
       new Text("Mundo!"),
     ],
