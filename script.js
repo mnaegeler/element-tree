@@ -9,21 +9,29 @@ const ElementTree = (function (window) {
     AppRoot.appendChild(data.body);
   };
 
+  const _mapChildren = function (element, data) {
+    if (data && Array.isArray(data.children))
+      data.children.map(item => element.appendChild(item));
+  };
+
   const Text = function (data) {
     const element = doc.createElement('span');
+    element.ElementName = this.constructor.name;
     element.appendChild(doc.createTextNode(data));
     return element;
   };
 
   const Container = function (data) {
     const element = doc.createElement('div');
-    if (data.children) data.children.map(item => element.appendChild(item));
+    element.ElementName = this.constructor.name;
+    _mapChildren(element, data);
     return element;
   };
 
   const Row = function (data) {
     const element = doc.createElement('div');
-    if (data.children) data.children.map(item => element.appendChild(item));
+    element.ElementName = this.constructor.name;
+    _mapChildren(element, data);
     element.style.display = 'flex';
     element.style.flexDirection = 'row';
     return element;
@@ -31,7 +39,8 @@ const ElementTree = (function (window) {
 
   const Column = function (data) {
     const element = doc.createElement('div');
-    if (data.children) data.children.map(item => element.appendChild(item));
+    element.ElementName = this.constructor.name;
+    _mapChildren(element, data);
     element.style.display = 'flex';
     element.style.flexDirection = 'column';
     return element;
@@ -39,20 +48,42 @@ const ElementTree = (function (window) {
 
   const Expanded = function (data) {
     const element = doc.createElement('div');
-    if (data.children) data.children.map(item => element.appendChild(item));
+    element.ElementName = this.constructor.name;
+    _mapChildren(element, data);
     element.style.flexGrow = '1';
     return element;
   };
 
   const Button = function (data) {
     const element = doc.createElement('button');
-    if (data.child) element.appendChild(data.child);
-    if (data.onPressed) element.onclick = data.onPressed;
+    element.ElementName = this.constructor.name;
+    if (data) {
+      if (data.child) element.appendChild(data.child);
+      if (data.onPressed) element.onclick = data.onPressed;
+    }
     return element;
+  };
+  
+  const setState = function (element, toSet) {
+    const parent = element.parentNode;
+    let elIndex = null;
+    parent.childNodes.forEach((item, index) => {
+      if (item === element) {
+        elIndex = index;
+        return;
+      }
+    });
+
+    if (typeof toSet === 'function')
+      toSet();
+
+    parent.insertBefore(new window[element.ElementName](), element);
+    element.remove();
   };
 
   return {
     runApp,
+    setState,
     Text,
     Container,
     Column,
@@ -67,20 +98,12 @@ Object.assign(window, ElementTree);
 let state = {
   _counter: 1,
 };
-const CustomText = function () {
 
+const CustomText = function () {
   const _increment = (element) => {
-    const parent = element.parentNode;
-    let elementIndex = null;
-    parent.childNodes.forEach((item, index) => {
-      if (item === element) {
-        elementIndex = index;
-        return;
-      }
+    setState(element, () => {
+      state._counter++;
     });
-    state._counter++;
-    parent.insertBefore(new CustomText(), element);
-    element.remove();
   };
 
   const ElementBuilder = () => new Container({ children: [
@@ -90,6 +113,8 @@ const CustomText = function () {
       child: new Text('Increment'), }),
   ] });
   const build = ElementBuilder();
+  build.ElementName = this.constructor.name;
+  window.CustomText = CustomText;
 
   return build;
 };
