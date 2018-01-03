@@ -119,14 +119,20 @@ const CustomText = function () {
   return build;
 };
 
+const listTexts = () => {
+  const length = 10000;
+  const result = [];
+  for (let i = 0; i < length; i++) {
+    result.push(new Text(`Item: ${i}`));
+  }
+  return result;
+};
+
 runApp({
   body: new Row({
     children: [
       new Text("Olá"),
-      new Expanded({ children: [
-        new Text('hey there!'),
-        new CustomText(),
-      ] }),
+      new Expanded({ children: listTexts() }),
       new Text("Mundo!"),
     ],
   }),
