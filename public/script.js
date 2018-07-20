@@ -43,6 +43,7 @@ const ElementTree = (function (window) {
     _mapChildren(element, data);
     element.style.display = 'flex';
     element.style.flexDirection = 'column';
+    element.style.height = '100%';
     return element;
   };
 
@@ -98,7 +99,7 @@ Object.assign(window, ElementTree);
 let state = {
   _counter: 1,
 };
-
+/*
 const CustomText = function () {
   const _increment = (element) => {
     setState(element, () => {
@@ -127,8 +128,10 @@ const listTexts = () => {
   }
   return result;
 };
+*/
 
 runApp({
+  /*
   body: new Row({
     children: [
       new Text("Olá"),
@@ -136,5 +139,14 @@ runApp({
       new Text("Mundo!"),
     ],
   }),
+  */
+  body: new Column({
+    children: [
+      new Text('Oi app'),
+      new Expanded({ children: [
+        new Text('Marcelo'),
+      ] }),
+      new Text('Oi app'),
+    ] })
 });
 
